@@ -130,7 +130,7 @@ foreach($dialog in @('Completed','Failed','Cancelled')){
  ButtonControl $dialog 'Finish' 'Закрыть' 277 'Finish' 'EndDialog' 'Return'
 }
 $summary=$db.GetType().InvokeMember('SummaryInformation',[Reflection.BindingFlags]::GetProperty,$null,$db,@(20))
-$summaryValues=@{1=1251;2='Установка Lumos';3='Lumos Alpha 0.0.8';4='Lumos';5='Luma, gamma, display';6='Per-user installation. No user preferences included.';7='x64;1049';9=('{'+[Guid]::NewGuid().ToString().ToUpperInvariant()+'}');14=500;15=10;18='Lumos package builder';19=2}
+$summaryValues=@{1=1251;2='Установка Lumos';3="Lumos Alpha $msiVersion";4='Lumos';5='Luma, gamma, display';6='Per-user installation. No user preferences included.';7='x64;1049';9=('{'+[Guid]::NewGuid().ToString().ToUpperInvariant()+'}');14=500;15=10;18='Lumos package builder';19=2}
 foreach($entry in $summaryValues.GetEnumerator()){ComSet $summary 'Property' @([int]$entry.Key,$entry.Value)}
 ComCall $summary 'Persist' | Out-Null
 ComCall $db 'Commit' | Out-Null
