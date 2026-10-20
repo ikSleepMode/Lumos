@@ -1,0 +1,30 @@
+name: Build and release Lumos
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify version and tag
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF_TYPE -ne 'tag') { throw 'Run this workflow against a version tag' }
+          $version = [regex]::Match((Get-Content src/LumaDesk.Version.cs -Raw), 'AssemblyFileVersion\("([^"]+)"\)').Groups[1].Value
+          if ($env:GITHUB_REF_NAME -ne "v$($version -replace '\.0$','')-alpha") { throw 'Tag must match assembly version: v0.0.8-alpha' }
+      - name: Test
+        shell: powershell
+        run: ./scripts/test.ps1
+      - name: Build
+        shell: powershell
+        run: ./scripts/build.ps1
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create $env:GITHUB_REF_NAME dist/Lumos-Setup.msi dist/Lumos.exe --title "Lumos $env:GITHUB_REF_NAME" --generate-notes --prerelease --verify-tag

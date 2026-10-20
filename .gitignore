@@ -1,0 +1,7 @@
+src/*.exe
+dist/
+scripts/installer/
+work/
+*.log
+*.user
+*.tmp
