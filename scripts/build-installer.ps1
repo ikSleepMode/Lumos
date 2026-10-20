@@ -1,4 +1,4 @@
-$ErrorActionPreference='Stop'
+﻿$ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $packageDir=Join-Path $PSScriptRoot 'installer'
 New-Item -ItemType Directory -Path $packageDir -Force | Out-Null
@@ -51,7 +51,7 @@ $upgrade='{621333F5-9290-4625-8A7F-AC043FE46324}'
 $properties=[ordered]@{
  ProductCode=$product;UpgradeCode=$upgrade;ProductName="Lumos Alpha $msiVersion";ProductVersion=$msiVersion;ProductLanguage='1049';Manufacturer='Lumos';
  ARPCOMMENTS='Управление гаммой экрана с предпросмотром и цветовыми темами';ARPPRODUCTICON='LumaIcon';ARPNOMODIFY='1';ARPINSTALLLOCATION='[INSTALLDIR]';
- INSTALLLEVEL='1';DefaultUIFont='UiNormal';SecureCustomProperties='PREVIOUSPRODUCTS';REBOOT='ReallySuppress'
+ INSTALLLEVEL='1';DefaultUIFont='UiNormal';SecureCustomProperties='PREVIOUSPRODUCTS;LEGACYPRODUCTS;NEWERPRODUCTS';REBOOT='ReallySuppress'
 }
 foreach($entry in $properties.GetEnumerator()){Row 'Property' @($entry.Key,$entry.Value)}
 Table 'Directory' @('Directory','Directory_Parent','DefaultDir') @('CHAR(72) NOT NULL','CHAR(72)','CHAR(255) NOT NULL LOCALIZABLE') @('Directory')
@@ -87,7 +87,12 @@ Row 'RemoveFile' @('RemoveLog','MainComponent','LumaDesk-diagnostics.log','INSTA
 Row 'RemoveFile' @('RemoveMenuFolder','MainComponent',$null,'LumaMenu',2)
 Row 'RemoveFile' @('RemoveAppFolder','MainComponent',$null,'INSTALLDIR',2)
 Table 'Upgrade' @('UpgradeCode','VersionMin','VersionMax','Language','Attributes','Remove','ActionProperty') @('CHAR(38) NOT NULL','CHAR(20)','CHAR(20)','CHAR(255)','LONG NOT NULL','CHAR(255)','CHAR(72) NOT NULL') @('UpgradeCode','VersionMin','VersionMax','Language','Attributes')
-Row 'Upgrade' @($upgrade,$null,'2.3.0',$null,513,$null,'PREVIOUSPRODUCTS')
+Row 'Upgrade' @($upgrade,$null,$msiVersion,$null,1,$null,'PREVIOUSPRODUCTS')
+# Migrate the older product's historical 2.x versions after the alpha version reset.
+Row 'Upgrade' @($upgrade,'2.1.0','2.3.0',$null,769,$null,'LEGACYPRODUCTS')
+Row 'Upgrade' @($upgrade,$msiVersion,'2.1.0',$null,2,$null,'NEWERPRODUCTS')
+Table 'LaunchCondition' @('Condition','Description') @('CHAR(255) NOT NULL','CHAR(255) LOCALIZABLE') @('Condition')
+Row 'LaunchCondition' @('Installed OR NOT NEWERPRODUCTS','Уже установлена более новая версия Lumos.')
 foreach($name in @('InstallExecuteSequence','InstallUISequence')){Table $name @('Action','Condition','Sequence') @('CHAR(72) NOT NULL','CHAR(255)','SHORT') @('Action')}
 $execute=[ordered]@{FindRelatedProducts=25;LaunchConditions=100;ValidateProductID=700;CostInitialize=800;FileCost=900;CostFinalize=1000;MigrateFeatureStates=1200;InstallValidate=1400;InstallInitialize=1500;RemoveExistingProducts=1550;ProcessComponents=1600;UnpublishFeatures=1800;RemoveShortcuts=3200;RemoveFiles=3500;RemoveFolders=3600;InstallFiles=4000;CreateShortcuts=4500;WriteRegistryValues=5000;RegisterUser=6000;RegisterProduct=6100;PublishFeatures=6300;PublishProduct=6400;InstallFinalize=6600}
 foreach($e in $execute.GetEnumerator()){Row 'InstallExecuteSequence' @($e.Key,($null),[int]$e.Value)}

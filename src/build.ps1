@@ -1,4 +1,4 @@
-param([string]$OutputPath,[string]$EntryPoint='ModernMain',[string[]]$ExtraSources=@(),[string]$TargetType='winexe')
+﻿param([string]$OutputPath,[string]$EntryPoint='ModernMain',[string[]]$ExtraSources=@(),[string]$TargetType='winexe')
 $ErrorActionPreference = 'Stop'
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 if (!(Test-Path -LiteralPath $compiler)) { $compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe' }
