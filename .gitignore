@@ -5,3 +5,6 @@ work/
 *.log
 *.user
 *.tmp
+*.private*
+*.key
+*.keybin
