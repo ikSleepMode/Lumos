@@ -23,8 +23,7 @@ public static class ModernMain {
   bool first;using(var mutex=new Mutex(true,"Local\\LumaDesk.Unique",out first)){
    if(!first){MessageBox.Show("Lumos уже запущен. Откройте окно через значок в трее.","Lumos");return;}
    System.Windows.Forms.Application.EnableVisualStyles();System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
-   var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};
-   app.Startup+=delegate{LicensedStartup.Start(app);};app.Run();
+   var app=new Application{ShutdownMode=ShutdownMode.OnMainWindowClose};app.Run(new StudioWindow(false));
   }
  }
 }
